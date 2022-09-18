@@ -102,8 +102,8 @@ frases_amostra = [
 
 # Coleção de métricas do modelo
 resultado_metricas = pd.DataFrame(data={
-    'name': [], 'accuracy': [], 'precision': [], 
-    'recall': [], 'F1 score': [], 'classifier': []})
+    'Name': [], 'Accuracy': [], 'Precision': [], 
+    'Recall': [], 'F1 Score': [], 'Classifier': []})
 
 # Geração da análise por frases
 def analizar_frase(texto, modelo):
@@ -140,10 +140,10 @@ def analizar_modelo(name, modelo):
   print("F1 Score:", "{:.4f}".format(f1_score))
 
   df_metric = pd.DataFrame(data={
-      'name': [name], 'accuracy': [accuracy], 'precision': [precision], 
-      'recall': [recall], 'F1 score': [f1_score], 'classifier': [modelo]})
+      'Name': [name], 'Accuracy': [accuracy], 'Precision': [precision], 
+      'Recall': [recall], 'F1 Score': [f1_score], 'Classifier': [modelo]})
   
-  return resultado_metricas.append(df_metric)
+  return pd.concat([resultado_metricas, df_metric])
 
 ##############################################
 # C-Support Vector Classification
@@ -284,7 +284,7 @@ resultado_metricas = analizar_modelo('Quadratic Discriminant Analysis', modelo_q
 ##############################################
 # Apuração de resultados os modelos
 ##############################################
-print(resultado_metricas[['name', 'accuracy', 'precision', 'recall', 'F1 score']])
+print(resultado_metricas[['Name', 'Accuracy', 'Precision', 'Recall', 'F1 Score']])
 
 # Importação de biblioteca de serialização
 import pickle
