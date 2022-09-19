@@ -132,7 +132,7 @@ def analizar_modelo(name, modelo):
   precision = metrics.precision_score(classificacoes_teste, predicoes_teste, average='weighted')
   recall = metrics.recall_score(classificacoes_teste, predicoes_teste, average='weighted')
   f1_score = metrics.f1_score(classificacoes_teste, predicoes_teste, average='weighted')
-
+ 
   print("")
   print("Acurária:", "{:.4f}".format(accuracy))
   print("Precisão:", "{:.4f}".format(precision))
@@ -151,13 +151,18 @@ def analizar_modelo(name, modelo):
 from sklearn.svm import SVC
 
 # Gerar modelo "Support Vector Classification" para realizar as previsões, com um valor de seed, forçar um resultado para as chaves aleatórias, para garantir replicabilidade do projeto
-modelo_svc = SVC(random_state=42)
-
+modelo_svc_linear = SVC(random_state=42, kernel="linear", C=0.025)
 # Gerar fit do modelo para predições
-modelo_svc.fit(vector_treino, classificacoes_treino)
-
+modelo_svc_linear.fit(vector_treino, classificacoes_treino)
 # Cálculo das métricas
-resultado_metricas = analizar_modelo('C-Support Vector Classification', modelo_svc)
+resultado_metricas = analizar_modelo('C-Support Vector Classification - Linear', modelo_svc_linear)
+
+# Gerar modelo "Support Vector Classification" para realizar as previsões, com um valor de seed, forçar um resultado para as chaves aleatórias, para garantir replicabilidade do projeto
+modelo_svc_gamma = SVC(random_state=42, gamma=2, C=1)
+# Gerar fit do modelo para predições
+modelo_svc_gamma.fit(vector_treino, classificacoes_treino)
+# Cálculo das métricas
+resultado_metricas = analizar_modelo('C-Support Vector Classification - Gammma', modelo_svc_gamma)
 
 ##############################################
 # Multinomial Naive Bayes
@@ -193,7 +198,7 @@ resultado_metricas = analizar_modelo('Gaussian Naive Bayes', modelo_gnb)
 from sklearn.ensemble import RandomForestClassifier
 
 # Gerar modelo "Random Florest" para realizar as previsões, com um valor de seed, forçar um resultado para as chaves aleatórias, para garantir replicabilidade do projeto
-modelo_rf = RandomForestClassifier(max_depth=5, random_state=42)
+modelo_rf = RandomForestClassifier(max_depth=10, n_estimators=10, random_state=42)
 
 # Gerar fit do modelo para predições
 modelo_rf.fit(vector_treino, classificacoes_treino)
@@ -260,7 +265,7 @@ resultado_metricas = analizar_modelo('Gaussian Process Classifier', modelo_gpc)
 ##############################################
 from sklearn.neural_network import MLPClassifier
 
-modelo_clf = MLPClassifier(random_state=42, max_iter=300)
+modelo_clf = MLPClassifier(random_state=42, max_iter=1000)
 
 # Gerar fit do modelo para predições
 modelo_clf.fit(vector_treino, classificacoes_treino)
@@ -286,11 +291,25 @@ resultado_metricas = analizar_modelo('Quadratic Discriminant Analysis', modelo_q
 ##############################################
 print(resultado_metricas[['Name', 'Accuracy', 'Precision', 'Recall', 'F1 Score']])
 
+# Selecionar o melhor modelo por acurácia
+top_accuracy = 0
+name_selected = ''
+model_selected = None
+
+for index, metrica in resultado_metricas.iterrows():
+  if top_accuracy < metrica.Accuracy:
+    top_accuracy = metrica.Accuracy
+    name_selected = metrica.Name
+    model_selected = metrica.Classifier
+
+print('Modelo selecionado é {} com acurácia {}'.format(name_selected, top_accuracy))
+
 # Importação de biblioteca de serialização
 import pickle
 
 # Geração do arquivo 'model_selected.sav' com o modelo 
-pickle.dump(modelo_clf, open('./data/model_selected.sav', 'wb'))
+pickle.dump(model_selected, open('./data/model_selected.sav', 'wb'))
+pickle.dump(vectorizer, open('./data/vectorizer.sav', 'wb'))
 
 # Carregar o arquivo com o modelo gerado
 loaded_model = pickle.load(open('./data/model_selected.sav', 'rb'))
